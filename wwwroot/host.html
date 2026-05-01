@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Game Show — Панель ведучого</title>
+  <meta name="description" content="Панель ведучого для Quiz Game Show. Керуй тестами, запускай ігрові кімнати та контролюй перебіг гри." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/host.css" />
+</head>
+<body>
+
+<div class="host-layout">
+
+  <!-- ════ SIDEBAR ════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span>🎯</span>
+      <span>QuizShow</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" id="nav-quizzes" onclick="showPage('quizzes')">
+        📝 Мої тести
+      </button>
+      <button class="nav-btn" id="nav-game" onclick="showPage('game')">
+        🎮 Керування грою
+      </button>
+      <button class="nav-btn" id="nav-create" onclick="showPage('create')">
+        ➕ Новий тест
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <small>Quiz Game Show v1.0</small>
+    </div>
+  </aside>
+
+  <!-- ════ MAIN CONTENT ════ -->
+  <main class="main-content">
+
+    <!-- PAGE: Quizzes List -->
+    <div id="page-quizzes" class="page active">
+      <div class="page-header">
+        <h1>Мої тести</h1>
+        <button class="btn btn-primary" onclick="showPage('create')">+ Новий тест</button>
+      </div>
+      <div id="quizzes-grid" class="quizzes-grid">
+        <div class="loading-spinner">Завантаження...</div>
+      </div>
+    </div>
+
+    <!-- PAGE: Create/Edit Quiz -->
+    <div id="page-create" class="page">
+      <div class="page-header">
+        <h1>Новий тест</h1>
+        <button class="btn btn-ghost" onclick="showPage('quizzes')">← Назад</button>
+      </div>
+      <form id="create-quiz-form" onsubmit="submitQuiz(event)">
+        <div class="form-section">
+          <div class="form-group">
+            <label for="quiz-title">Назва тесту *</label>
+            <input id="quiz-title" type="text" placeholder="Загальні знання" required maxlength="200" />
+          </div>
+          <div class="form-group">
+            <label for="quiz-desc">Опис</label>
+            <textarea id="quiz-desc" placeholder="Перевір свої знання!" rows="2" maxlength="500"></textarea>
+          </div>
+        </div>
+
+        <div id="questions-container" class="questions-container">
+          <!-- Question blocks injected here -->
+        </div>
+
+        <button type="button" class="btn btn-secondary add-question-btn" onclick="addQuestion()">
+          + Додати питання
+        </button>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-xl" id="submit-quiz-btn">
+            💾 Зберегти тест
+          </button>
+        </div>
+        <p id="create-error" class="error-msg hidden"></p>
+        <p id="create-success" class="success-msg hidden"></p>
+      </form>
+    </div>
+
+    <!-- PAGE: Game Control -->
+    <div id="page-game" class="page">
+      <div class="page-header">
+        <h1>Керування грою</h1>
+      </div>
+
+      <!-- Step 1: Select Quiz & Create Room -->
+      <div id="game-setup" class="game-panel">
+        <h2>Обери тест та запусти кімнату</h2>
+        <div class="form-group">
+          <label for="select-quiz">Тест</label>
+          <select id="select-quiz">
+            <option value="">-- Завантаження... --</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-xl" onclick="createRoom()">
+          🚀 Створити кімнату
+        </button>
+        <p id="room-error" class="error-msg hidden"></p>
+      </div>
+
+      <!-- Step 2: Lobby View (show room code, wait for players) -->
+      <div id="game-lobby" class="game-panel hidden">
+        <div class="room-code-display">
+          <p>Код кімнати</p>
+          <div class="room-code-big" id="host-room-code">ABC-123</div>
+          <small>Скажи гравцям ввести цей код на головній сторінці</small>
+        </div>
+
+        <div class="player-count-area">
+          <div class="player-count-badge">
+            <span id="player-count">0</span>
+            <small>гравців онлайн</small>
+          </div>
+        </div>
+
+        <div id="host-player-list" class="host-player-list"></div>
+
+        <div class="game-actions">
+          <button class="btn btn-success btn-xl" onclick="hostStartGame()">
+            ▶️ Почати гру
+          </button>
+          <button class="btn btn-danger" onclick="closeRoom()">
+            ✕ Закрити кімнату
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: In-Game Control Panel -->
+      <div id="game-control" class="game-panel hidden">
+        <div class="game-status-bar">
+          <span>Кімната: <strong id="ctrl-room-code"></strong></span>
+          <span>Питання <strong id="ctrl-q-num">1</strong> / <strong id="ctrl-q-total">5</strong></span>
+          <div class="answered-indicator">
+            <span id="ctrl-answered">0</span>/<span id="ctrl-total-players">0</span> відповіли
+          </div>
+        </div>
+
+        <!-- Current question preview (host sees correct answer) -->
+        <div class="current-question-card">
+          <p id="ctrl-q-text" class="ctrl-question-text">Питання завантажується...</p>
+          <div id="ctrl-answers" class="ctrl-answers-grid"></div>
+        </div>
+
+        <!-- Timer display -->
+        <div class="ctrl-timer">
+          ⏱️ Залишилось: <strong id="ctrl-timer-val">--</strong> сек
+        </div>
+
+        <div class="game-actions">
+          <button class="btn btn-primary btn-xl" onclick="hostShowResults()">
+            📊 Показати результати
+          </button>
+          <button class="btn btn-secondary btn-xl" id="btn-next-q" onclick="hostNextQuestion()" disabled>
+            ➡️ Наступне питання
+          </button>
+        </div>
+
+        <div id="answer-stats" class="answer-stats hidden">
+          <h3>Статистика відповідей</h3>
+          <div id="stats-bars" class="stats-bars"></div>
+          <div id="host-leaderboard" class="host-leaderboard-mini"></div>
+        </div>
+      </div>
+
+      <!-- Step 4: Game Over -->
+      <div id="game-finished" class="game-panel hidden">
+        <div class="gameover-host">
+          <h2>🎉 Гру завершено!</h2>
+          <div id="host-final-leaderboard" class="leaderboard-list"></div>
+          <button class="btn btn-primary" onclick="resetGame()">Нова гра</button>
+        </div>
+      </div>
+
+    </div>
+    <!-- /page-game -->
+
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<script src="js/host.js"></script>
+</body>
+</html>

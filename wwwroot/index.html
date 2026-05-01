@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Game Show — Гравець</title>
+  <meta name="description" content="Приєднайся до Quiz Game Show — відповідай на питання та змагайся з іншими гравцями в реальному часі!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/player.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════ SCREENS -->
+
+<!-- Screen 1: Join Room -->
+<div id="screen-join" class="screen active">
+  <div class="screen-inner">
+    <div class="logo">
+      <span class="logo-icon">🎯</span>
+      <h1 class="logo-text">QuizShow</h1>
+    </div>
+    <div class="card join-card">
+      <h2>Приєднатись до гри</h2>
+      <div class="form-group">
+        <label for="input-room-code">Код кімнати</label>
+        <input
+          id="input-room-code"
+          type="text"
+          placeholder="ABC-123"
+          maxlength="7"
+          autocomplete="off"
+          autocapitalize="characters"
+        />
+      </div>
+      <div class="form-group">
+        <label for="input-nickname">Твій нікнейм</label>
+        <input
+          id="input-nickname"
+          type="text"
+          placeholder="SuperPlayer"
+          maxlength="30"
+          autocomplete="off"
+        />
+      </div>
+      <button id="btn-join" class="btn btn-primary btn-xl" onclick="joinRoom()">
+        Увійти в гру 🚀
+      </button>
+      <p id="join-error" class="error-msg hidden"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 2: Lobby (waiting) -->
+<div id="screen-lobby" class="screen">
+  <div class="screen-inner">
+    <div class="lobby-header">
+      <h2 id="lobby-quiz-title">Завантаження...</h2>
+      <p>Кімната: <strong id="lobby-room-code"></strong></p>
+    </div>
+    <div class="waiting-animation">
+      <div class="spinner-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="waiting-text">Очікуємо початку гри...</p>
+      <p class="nickname-badge">👋 Ти: <strong id="lobby-nickname"></strong></p>
+    </div>
+    <div id="player-list-container" class="player-chips"></div>
+  </div>
+</div>
+
+<!-- Screen 3: Question -->
+<div id="screen-question" class="screen">
+  <header class="question-header">
+    <div class="question-progress">
+      <span id="q-current">1</span> / <span id="q-total">5</span>
+    </div>
+    <div id="timer-container" class="timer-ring-container">
+      <svg class="timer-ring" viewBox="0 0 60 60">
+        <circle class="timer-bg" cx="30" cy="30" r="26" />
+        <circle id="timer-circle" class="timer-progress" cx="30" cy="30" r="26" />
+      </svg>
+      <span id="timer-text" class="timer-number">20</span>
+    </div>
+    <div class="question-score">
+      <span>⭐ </span><span id="score-display">0</span>
+    </div>
+  </header>
+
+  <div class="question-body">
+    <div class="question-text-card">
+      <p id="question-text">Яка столиця України?</p>
+    </div>
+  </div>
+
+  <div id="answers-grid" class="answers-grid">
+    <!-- Buttons injected by JS -->
+  </div>
+
+  <div id="answered-overlay" class="answered-overlay hidden">
+    <div class="answered-icon" id="answered-icon">⏳</div>
+    <p id="answered-msg">Чекаємо результатів...</p>
+  </div>
+</div>
+
+<!-- Screen 4: Answer Result -->
+<div id="screen-result" class="screen">
+  <div class="screen-inner result-screen">
+    <div id="result-icon" class="result-big-icon">✅</div>
+    <h2 id="result-title">Правильно!</h2>
+    <p id="result-correct-answer" class="result-answer-text"></p>
+    <div class="points-awarded">
+      <span id="result-points">+1000</span>
+      <small>балів</small>
+    </div>
+    <div class="total-score-badge">
+      Загалом: <strong id="result-total">1000</strong> балів
+    </div>
+    <p class="waiting-next">Очікуємо наступного питання...</p>
+  </div>
+</div>
+
+<!-- Screen 5: Leaderboard between questions -->
+<div id="screen-leaderboard" class="screen">
+  <div class="screen-inner">
+    <h2 class="leaderboard-title">🏆 Таблиця лідерів</h2>
+    <div id="leaderboard-list" class="leaderboard-list"></div>
+    <p class="waiting-next">Ведучий переходить до наступного питання...</p>
+  </div>
+</div>
+
+<!-- Screen 6: Game Over -->
+<div id="screen-gameover" class="screen">
+  <div class="screen-inner gameover-screen">
+    <div class="fireworks">🎉</div>
+    <h1 id="gameover-title">Гру завершено!</h1>
+    <p id="winner-text" class="winner-text"></p>
+    <div id="final-leaderboard" class="leaderboard-list"></div>
+    <button class="btn btn-secondary" onclick="resetToJoin()">Зіграти ще раз</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ SCRIPTS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<script src="js/player.js"></script>
+</body>
+</html>
