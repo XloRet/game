@@ -14,15 +14,22 @@
 
 <!-- ═══════════════════════════════════════════════════════════════════ SCREENS -->
 
-<!-- Screen 1: Join Room -->
+<!-- Screen 1: Join / Create tabs -->
 <div id="screen-join" class="screen active">
   <div class="screen-inner">
     <div class="logo">
       <span class="logo-icon">🎯</span>
       <h1 class="logo-text">QuizShow</h1>
     </div>
-    <div class="card join-card">
-      <h2>Приєднатись до гри</h2>
+
+    <!-- Tab switcher -->
+    <div class="join-tabs">
+      <button id="tab-join-btn"   class="join-tab active" onclick="switchTab('join')">🎮 Приєднатись</button>
+      <button id="tab-host-btn"   class="join-tab"        onclick="switchTab('host')">👑 Стати ведучим</button>
+    </div>
+
+    <!-- Panel: Join as player -->
+    <div id="panel-join" class="card join-card">
       <div class="form-group">
         <label for="input-room-code">Код кімнати</label>
         <input
@@ -49,8 +56,47 @@
       </button>
       <p id="join-error" class="error-msg hidden"></p>
     </div>
+
+    <!-- Panel: Become host -->
+    <div id="panel-host" class="card join-card hidden">
+      <div class="form-group">
+        <label for="host-select-quiz">Обери тест</label>
+        <select id="host-select-quiz">
+          <option value="">Завантаження...</option>
+        </select>
+      </div>
+      <button id="btn-create-room" class="btn btn-primary btn-xl" onclick="createRoomAsPlayer()">
+        Створити кімнату 👑
+      </button>
+      <p id="host-create-error" class="error-msg hidden"></p>
+    </div>
+
   </div>
 </div>
+
+<!-- Screen 1b: Room Created (shown to the person who created the room) -->
+<div id="screen-create-room" class="screen">
+  <div class="screen-inner">
+    <div class="logo">
+      <span class="logo-icon">👑</span>
+      <h1 class="logo-text">Кімната створена!</h1>
+    </div>
+    <div class="card" style="max-width:480px;width:100%;text-align:center;">
+      <p style="color:var(--clr-muted);margin-bottom:.5rem">Код для гравців:</p>
+      <div id="created-room-code" class="created-code-display">ABC-123</div>
+      <p style="color:var(--clr-muted);font-size:.85rem;margin:.75rem 0 1.25rem">
+        Поділись цим кодом з гравцями. Вони вводять його на головній сторінці.
+      </p>
+      <a id="open-host-link" href="/host.html" target="_blank" class="btn btn-primary btn-xl" style="display:block;text-decoration:none;">
+        Відкрити панель ведучого 🖥️
+      </a>
+      <button class="btn btn-secondary btn-xl" onclick="resetToJoin()" style="margin-top:.5rem">
+        ← Повернутись
+      </button>
+    </div>
+  </div>
+</div>
+
 
 <!-- Screen 2: Lobby (waiting) -->
 <div id="screen-lobby" class="screen">
