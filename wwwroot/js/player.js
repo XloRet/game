@@ -113,6 +113,73 @@ function buildConnection() {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
+// TAB SWITCHER (Join / Become Host)
+// ──────────────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  const isHost = tab === 'host';
+  document.getElementById('panel-join').classList.toggle('hidden', isHost);
+  document.getElementById('panel-host').classList.toggle('hidden', !isHost);
+  document.getElementById('tab-join-btn').classList.toggle('active', !isHost);
+  document.getElementById('tab-host-btn').classList.toggle('active', isHost);
+  if (isHost) loadQuizzesForPlayer();
+}
+
+async function loadQuizzesForPlayer() {
+  const sel = document.getElementById('host-select-quiz');
+  sel.innerHTML = '<option value="">Завантаження...</option>';
+  try {
+    const res  = await fetch('/api/quizzes');
+    const list = await res.json();
+    if (!list.length) {
+      sel.innerHTML = '<option value="">Тестів немає — запитайте ведучого</option>';
+      return;
+    }
+    sel.innerHTML = list.map(q =>
+      `<option value="${q.id}">${escHtml(q.title)} (${q.questionCount} питань)</option>`
+    ).join('');
+  } catch {
+    sel.innerHTML = '<option value="">Помилка завантаження</option>';
+  }
+}
+
+async function createRoomAsPlayer() {
+  const quizId = parseInt(document.getElementById('host-select-quiz').value);
+  const errEl  = document.getElementById('host-create-error');
+  const btn    = document.getElementById('btn-create-room');
+  errEl.classList.add('hidden');
+
+  if (!quizId) {
+    errEl.textContent = 'Оберіть тест зі списку.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Створення...';
+
+  try {
+    const res = await fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quizId })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const session = await res.json();
+
+    // Show the created room screen with the code
+    document.getElementById('created-room-code').textContent = session.roomCode;
+    document.getElementById('open-host-link').href = `/host.html?code=${session.roomCode}`;
+    showScreen('screen-create-room');
+  } catch (err) {
+    errEl.textContent = 'Помилка: ' + err.message;
+    errEl.classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Створити кімнату 👑';
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // JOIN ROOM
 // ──────────────────────────────────────────────────────────────────────────────
 async function joinRoom() {
@@ -330,6 +397,8 @@ function resetState() {
   document.getElementById('player-list-container').innerHTML = '';
   document.getElementById('input-room-code').value = '';
   document.getElementById('input-nickname').value = '';
+  // Reset to join tab
+  switchTab('join');
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

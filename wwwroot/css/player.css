@@ -98,6 +98,64 @@ body {
   text-align: center;
 }
 
+/* ── Tab switcher ────────────────────────────────────────────── */
+.join-tabs {
+  display: flex;
+  gap: .5rem;
+  background: var(--clr-surface);
+  border: 1px solid rgba(124,58,237,.25);
+  border-radius: 12px;
+  padding: .35rem;
+  width: 100%;
+  max-width: 440px;
+}
+.join-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--clr-muted);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: .95rem;
+  font-weight: 700;
+  padding: .6rem .5rem;
+  transition: all .2s;
+}
+.join-tab:hover  { color: var(--clr-text); background: rgba(124,58,237,.1); }
+.join-tab.active { background: var(--clr-primary); color: #fff; }
+
+/* ── Host select inside card ─────────────────────────────────── */
+#panel-host select {
+  width: 100%;
+  background: var(--clr-surface2);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  color: var(--clr-text);
+  font-family: var(--font);
+  font-size: 1rem;
+  padding: .75rem 1rem;
+  outline: none;
+  transition: border-color .2s;
+}
+#panel-host select:focus { border-color: var(--clr-primary); }
+#panel-host select option { background: var(--clr-surface2); }
+
+/* ── Created room code display ───────────────────────────────── */
+.created-code-display {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: .25em;
+  color: var(--clr-accent);
+  background: var(--clr-surface2);
+  border-radius: var(--radius);
+  padding: .6rem 1.5rem;
+  display: inline-block;
+  margin: .25rem 0;
+  text-align: center;
+  width: 100%;
+}
+
 /* ── Forms ───────────────────────────────────────────────────── */
 .form-group {
   margin-bottom: 1rem;

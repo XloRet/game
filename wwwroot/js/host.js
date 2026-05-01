@@ -588,7 +588,24 @@ function slugify(str) {
 // ──────────────────────────────────────────────────────────────────────────────
 // INIT
 // ──────────────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   loadQuizzes();
   ensureOneQuestion();
+
+  // If opened via ?code=XXX (from player's "Create Room" flow),
+  // auto-navigate to game management and connect to that room.
+  const params   = new URLSearchParams(window.location.search);
+  const codeParam = params.get('code');
+  if (codeParam) {
+    showPage('game');
+    await loadQuizzesIntoSelect();
+    activeRoomCode = codeParam.toUpperCase();
+
+    document.getElementById('host-room-code').textContent  = activeRoomCode;
+    document.getElementById('ctrl-room-code').textContent  = activeRoomCode;
+    document.getElementById('game-setup').classList.add('hidden');
+    document.getElementById('game-lobby').classList.remove('hidden');
+
+    await connectHostHub(activeRoomCode);
+  }
 });
